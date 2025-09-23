@@ -1,129 +1,96 @@
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QLabel, QFileDialog, QSlider
+    QLabel, QLineEdit, QPushButton, QMessageBox
 )
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtCore import QUrl, Qt, QTimer
-from PyQt5.QtGui import QPixmap
 
-class SpotifyClone(QMainWindow):
+class BankingApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Spotify Lite 🎵")
-        self.setGeometry(200, 200, 500, 400)
+        self.setWindowTitle("Mini Banking App 💳")
+        self.setGeometry(200, 200, 400, 300)
 
-        # Player
-        self.player = QMediaPlayer()
-        self.player.positionChanged.connect(self.update_position)
-        self.player.durationChanged.connect(self.update_duration)
+        # Example account (PIN + balance)
+        self.correct_pin = "1234"
+        self.balance = 1000
 
-        # Timer for updating slider
-        self.timer = QTimer()
-        self.timer.setInterval(1000)
-        self.timer.timeout.connect(self.update_position)
-
-        # Main container
+        # Container
         self.container = QWidget()
         self.layout = QVBoxLayout(self.container)
 
-        # Album Art
-        self.album_art = QLabel()
-        self.album_art.setPixmap(QPixmap(200, 200))  # placeholder
-        self.album_art.setStyleSheet("background-color: #333; border-radius: 10px;")
-        self.album_art.setFixedSize(200, 200)
-        self.album_art.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(self.album_art, alignment=Qt.AlignCenter)
+        # Welcome label
+        self.label = QLabel("Enter your PIN:")
+        self.layout.addWidget(self.label)
 
-        # Song Label
-        self.song_label = QLabel("No song loaded")
-        self.song_label.setStyleSheet("font-size:18px; font-weight:bold; color:white;")
-        self.song_label.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(self.song_label)
+        # PIN input
+        self.pin_input = QLineEdit()
+        self.pin_input.setEchoMode(QLineEdit.Password)  # hide PIN
+        self.layout.addWidget(self.pin_input)
 
-        # Progress Bar
-        self.progress_slider = QSlider(Qt.Horizontal)
-        self.progress_slider.setStyleSheet("QSlider::groove:horizontal {background: #555;} QSlider::handle:horizontal {background: #1DB954; width: 10px;}")
-        self.progress_slider.sliderReleased.connect(self.set_position)
-        self.layout.addWidget(self.progress_slider)
-
-        # Controls (Play, Pause, Stop)
-        controls_layout = QHBoxLayout()
-        self.open_btn = QPushButton("📂 Open")
-        self.open_btn.clicked.connect(self.open_file)
-        controls_layout.addWidget(self.open_btn)
-
-        self.play_btn = QPushButton("▶️")
-        self.play_btn.clicked.connect(self.play_song)
-        controls_layout.addWidget(self.play_btn)
-
-        self.pause_btn = QPushButton("⏸️")
-        self.pause_btn.clicked.connect(self.pause_song)
-        controls_layout.addWidget(self.pause_btn)
-
-        self.stop_btn = QPushButton("⏹️")
-        self.stop_btn.clicked.connect(self.stop_song)
-        controls_layout.addWidget(self.stop_btn)
-
-        self.layout.addLayout(controls_layout)
-
-        # Volume Slider
-        self.volume_slider = QSlider(Qt.Horizontal)
-        self.volume_slider.setRange(0, 100)
-        self.volume_slider.setValue(50)
-        self.player.setVolume(50)
-        self.volume_slider.valueChanged.connect(self.player.setVolume)
-        self.layout.addWidget(QLabel("Volume", alignment=Qt.AlignCenter))
-        self.layout.addWidget(self.volume_slider)
-
-        # Dark Theme
-        self.setStyleSheet("""
-            QMainWindow { background-color: #121212; }
-            QPushButton {
-                background-color: #1DB954;
-                color: white;
-                font-size: 14px;
-                border-radius: 8px;
-                padding: 6px;
-            }
-            QPushButton:hover { background-color: #1ed760; }
-            QLabel { color: white; }
-        """)
+        # Login button
+        self.login_btn = QPushButton("Login")
+        self.login_btn.clicked.connect(self.login)
+        self.layout.addWidget(self.login_btn)
 
         self.setCentralWidget(self.container)
 
-    def open_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open Music", "", "Audio Files (*.mp3 *.wav)")
-        if file_name:
-            self.player.setMedia(QMediaContent(QUrl.fromLocalFile(file_name)))
-            self.song_label.setText("Playing: " + file_name.split("/")[-1])
-            self.progress_slider.setValue(0)
+    def login(self):
+        if self.pin_input.text() == self.correct_pin:
+            self.show_dashboard()
+        else:
+            QMessageBox.warning(self, "Error", "Incorrect PIN!")
 
-    def play_song(self):
-        self.player.play()
-        self.timer.start()
+    def show_dashboard(self):
+        # Clear layout
+        for i in reversed(range(self.layout.count())):
+            widget = self.layout.itemAt(i).widget()
+            if widget:
+                widget.deleteLater()
 
-    def pause_song(self):
-        self.player.pause()
-        self.timer.stop()
+        # Welcome
+        self.label = QLabel(f"Welcome! Balance: ${self.balance}")
+        self.layout.addWidget(self.label)
 
-    def stop_song(self):
-        self.player.stop()
-        self.timer.stop()
-        self.song_label.setText("No song loaded")
-        self.progress_slider.setValue(0)
+        # Deposit button
+        deposit_btn = QPushButton("Deposit $100")
+        deposit_btn.clicked.connect(self.deposit)
+        self.layout.addWidget(deposit_btn)
 
-    def update_position(self):
-        self.progress_slider.setValue(self.player.position())
+        # Withdraw button
+        withdraw_btn = QPushButton("Withdraw $100")
+        withdraw_btn.clicked.connect(self.withdraw)
+        self.layout.addWidget(withdraw_btn)
 
-    def update_duration(self, duration):
-        self.progress_slider.setRange(0, duration)
+        # Check balance button
+        balance_btn = QPushButton("Check Balance")
+        balance_btn.clicked.connect(self.check_balance)
+        self.layout.addWidget(balance_btn)
 
-    def set_position(self):
-        self.player.setPosition(self.progress_slider.value())
+        # Logout
+        logout_btn = QPushButton("Logout")
+        logout_btn.clicked.connect(self.logout)
+        self.layout.addWidget(logout_btn)
+
+    def deposit(self):
+        self.balance += 100
+        QMessageBox.information(self, "Deposit", "Deposited $100 successfully!")
+
+    def withdraw(self):
+        if self.balance >= 100:
+            self.balance -= 100
+            QMessageBox.information(self, "Withdraw", "Withdrew $100 successfully!")
+        else:
+            QMessageBox.warning(self, "Error", "Insufficient balance!")
+
+    def check_balance(self):
+        QMessageBox.information(self, "Balance", f"Your balance is: ${self.balance}")
+
+    def logout(self):
+        self.__init__()  # reset back to login screen
+        self.setCentralWidget(self.container)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = SpotifyClone()
+    window = BankingApp()
     window.show()
     sys.exit(app.exec_())
