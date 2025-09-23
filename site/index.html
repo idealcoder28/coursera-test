@@ -9,7 +9,7 @@ class BankApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("🏦 Secure Banking System")
-        self.setGeometry(200, 200, 500, 500)
+        self.setGeometry(200, 200, 500, 550)
 
         # User and account details
         self.username = "admin"
@@ -25,8 +25,9 @@ class BankApp(QMainWindow):
 
         # Main container
         self.container = QWidget()
-        self.layout = QVBoxLayout(self.container)
-        self.layout.setAlignment(Qt.AlignTop)
+        self.main_layout = QVBoxLayout(self.container)
+        self.main_layout.setAlignment(Qt.AlignTop)
+        self.main_layout.setContentsMargins(30, 20, 30, 20)
         self.setCentralWidget(self.container)
 
         # Show login screen
@@ -37,40 +38,48 @@ class BankApp(QMainWindow):
     def show_login(self):
         self.clear_layout()
 
+        # Card frame for login
+        card = QFrame()
+        card.setFrameShape(QFrame.StyledPanel)
+        card.setStyleSheet("padding: 25px; border-radius: 15px;")
+        card_layout = QVBoxLayout(card)
+        card_layout.setAlignment(Qt.AlignTop)
+        card_layout.setSpacing(15)
+
         title = QLabel("Welcome to Secure Bank")
-        title.setStyleSheet("font-size: 22px; font-weight: bold;")
+        title.setStyleSheet("font-size: 24px; font-weight: bold;")
         title.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(title)
+        card_layout.addWidget(title)
 
         subtitle = QLabel("Please enter your credentials")
         subtitle.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(subtitle)
+        card_layout.addWidget(subtitle)
 
         # Input fields
         self.user_input = QLineEdit()
         self.user_input.setPlaceholderText("Username")
+        self.user_input.setFixedHeight(35)
         self.pass_input = QLineEdit()
         self.pass_input.setPlaceholderText("Password")
         self.pass_input.setEchoMode(QLineEdit.Password)
+        self.pass_input.setFixedHeight(35)
 
-        self.layout.addWidget(self.user_input)
-        self.layout.addWidget(self.pass_input)
+        card_layout.addWidget(self.user_input)
+        card_layout.addWidget(self.pass_input)
 
-        # Buttons
-        btn_layout = QHBoxLayout()
+        # Login button
         self.login_btn = QPushButton("Login")
+        self.login_btn.setFixedHeight(40)
         self.login_btn.clicked.connect(self.login)
-        self.logout_btn = QPushButton("Logout")
-        self.logout_btn.clicked.connect(self.logout)
-        self.logout_btn.setEnabled(False)
-        btn_layout.addWidget(self.login_btn)
-        btn_layout.addWidget(self.logout_btn)
-        self.layout.addLayout(btn_layout)
+        card_layout.addWidget(self.login_btn)
 
         # Theme toggle
         theme_btn = QPushButton("Toggle Light/Dark Mode")
+        theme_btn.setFixedHeight(35)
         theme_btn.clicked.connect(self.toggle_theme)
-        self.layout.addWidget(theme_btn)
+        card_layout.addWidget(theme_btn)
+
+        self.main_layout.addWidget(card)
 
     def login(self):
         if self.user_input.text() == self.username and self.pass_input.text() == self.password:
@@ -87,18 +96,21 @@ class BankApp(QMainWindow):
     def show_dashboard(self):
         self.clear_layout()
 
+        # Card frame for dashboard
         card = QFrame()
         card.setFrameShape(QFrame.StyledPanel)
-        card.setStyleSheet("padding: 15px; border-radius: 10px;")
+        card.setStyleSheet("padding: 20px; border-radius: 15px;")
         card_layout = QVBoxLayout(card)
         card_layout.setAlignment(Qt.AlignTop)
+        card_layout.setSpacing(12)
 
+        # Greeting
         self.label = QLabel(f"Welcome, {self.username}!\nBalance: ₹{self.balance}")
-        self.label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        self.label.setStyleSheet("font-size: 20px; font-weight: bold;")
         self.label.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(self.label)
 
-        # Actions buttons with spacing
+        # Action buttons
         buttons = [
             ("Deposit Money", self.deposit),
             ("Withdraw Money", self.withdraw),
@@ -111,16 +123,17 @@ class BankApp(QMainWindow):
 
         for text, func in buttons:
             btn = QPushButton(text)
+            btn.setFixedHeight(40)
             btn.clicked.connect(func)
-            btn.setMinimumHeight(35)
             card_layout.addWidget(btn)
-
-        self.layout.addWidget(card)
 
         # Theme toggle at bottom
         theme_btn = QPushButton("Toggle Light/Dark Mode")
+        theme_btn.setFixedHeight(35)
         theme_btn.clicked.connect(self.toggle_theme)
-        self.layout.addWidget(theme_btn)
+        card_layout.addWidget(theme_btn)
+
+        self.main_layout.addWidget(card)
 
     # ------------------ BANK FUNCTIONS ------------------ #
     def deposit(self):
@@ -148,9 +161,8 @@ class BankApp(QMainWindow):
     def transfer(self):
         amount, ok = QInputDialog.getInt(self, "Transfer Amount", "Enter amount (₹):", 0, 0)
         if ok and 0 < amount <= self.balance:
-            # Pick receiver
             receiver, ok2 = QInputDialog.getItem(self, "Transfer", "Select recipient:",
-                                                list(self.accounts.keys())[1:], 0, False)
+                                                 list(self.accounts.keys())[1:], 0, False)
             if ok2:
                 self.balance -= amount
                 self.accounts["Me"] -= amount
@@ -177,8 +189,8 @@ class BankApp(QMainWindow):
 
     # ------------------ UTILITIES ------------------ #
     def clear_layout(self):
-        for i in reversed(range(self.layout.count())):
-            widget = self.layout.itemAt(i).widget()
+        for i in reversed(range(self.main_layout.count())):
+            widget = self.main_layout.itemAt(i).widget()
             if widget:
                 widget.deleteLater()
 
@@ -242,6 +254,7 @@ class BankApp(QMainWindow):
         else:
             msg.setIcon(QMessageBox.Information)
         msg.exec_()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
