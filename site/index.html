@@ -25,10 +25,11 @@ class BankApp(QMainWindow):
 
         # Main container
         self.container = QWidget()
+        self.setCentralWidget(self.container)
         self.main_layout = QVBoxLayout(self.container)
         self.main_layout.setAlignment(Qt.AlignTop)
         self.main_layout.setContentsMargins(30, 20, 30, 20)
-        self.setCentralWidget(self.container)
+        self.main_layout.setSpacing(20)
 
         # Show login screen
         self.show_login()
@@ -38,12 +39,10 @@ class BankApp(QMainWindow):
     def show_login(self):
         self.clear_layout()
 
-        # Card frame for login
         card = QFrame()
         card.setFrameShape(QFrame.StyledPanel)
-        card.setStyleSheet("padding: 25px; border-radius: 15px;")
+        card.setStyleSheet("padding: 25px; border-radius: 15px; background-color: #ffffff;")
         card_layout = QVBoxLayout(card)
-        card_layout.setAlignment(Qt.AlignTop)
         card_layout.setSpacing(15)
 
         title = QLabel("Welcome to Secure Bank")
@@ -55,10 +54,10 @@ class BankApp(QMainWindow):
         subtitle.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(subtitle)
 
-        # Input fields
         self.user_input = QLineEdit()
         self.user_input.setPlaceholderText("Username")
         self.user_input.setFixedHeight(35)
+
         self.pass_input = QLineEdit()
         self.pass_input.setPlaceholderText("Password")
         self.pass_input.setEchoMode(QLineEdit.Password)
@@ -67,13 +66,11 @@ class BankApp(QMainWindow):
         card_layout.addWidget(self.user_input)
         card_layout.addWidget(self.pass_input)
 
-        # Login button
         self.login_btn = QPushButton("Login")
         self.login_btn.setFixedHeight(40)
         self.login_btn.clicked.connect(self.login)
         card_layout.addWidget(self.login_btn)
 
-        # Theme toggle
         theme_btn = QPushButton("Toggle Light/Dark Mode")
         theme_btn.setFixedHeight(35)
         theme_btn.clicked.connect(self.toggle_theme)
@@ -96,15 +93,12 @@ class BankApp(QMainWindow):
     def show_dashboard(self):
         self.clear_layout()
 
-        # Card frame for dashboard
         card = QFrame()
         card.setFrameShape(QFrame.StyledPanel)
-        card.setStyleSheet("padding: 20px; border-radius: 15px;")
+        card.setStyleSheet("padding: 20px; border-radius: 15px; background-color: #ffffff;")
         card_layout = QVBoxLayout(card)
-        card_layout.setAlignment(Qt.AlignTop)
         card_layout.setSpacing(12)
 
-        # Greeting
         self.label = QLabel(f"Welcome, {self.username}!\nBalance: ₹{self.balance}")
         self.label.setStyleSheet("font-size: 20px; font-weight: bold;")
         self.label.setAlignment(Qt.AlignCenter)
@@ -189,10 +183,10 @@ class BankApp(QMainWindow):
 
     # ------------------ UTILITIES ------------------ #
     def clear_layout(self):
-        for i in reversed(range(self.main_layout.count())):
-            widget = self.main_layout.itemAt(i).widget()
-            if widget:
-                widget.deleteLater()
+        while self.main_layout.count():
+            child = self.main_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
     def toggle_theme(self):
         self.is_dark = not self.is_dark
@@ -257,7 +251,4 @@ class BankApp(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = BankApp()
-    window.show()
-    sys.exit(app.exec_())
+    app
