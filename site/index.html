@@ -1,7 +1,8 @@
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QMessageBox, QFrame, QInputDialog
+    QLabel, QLineEdit, QPushButton, QMessageBox, QFrame, QInputDialog,
+    QScrollArea
 )
 from PyQt5.QtCore import Qt
 
@@ -9,7 +10,7 @@ class BankApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("🏦 Secure Banking System")
-        self.setGeometry(200, 200, 500, 550)
+        self.setGeometry(150, 100, 500, 550)
 
         # User and account details
         self.username = "admin"
@@ -23,15 +24,19 @@ class BankApp(QMainWindow):
 
         self.is_dark = False
 
-        # Main container
+        # Scrollable main container
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
         self.container = QWidget()
-        self.setCentralWidget(self.container)
+        self.scroll.setWidget(self.container)
+        self.setCentralWidget(self.scroll)
+
         self.main_layout = QVBoxLayout(self.container)
         self.main_layout.setAlignment(Qt.AlignTop)
         self.main_layout.setContentsMargins(30, 20, 30, 20)
         self.main_layout.setSpacing(20)
 
-        # Show login screen
+        # Show login screen first
         self.show_login()
         self.apply_theme()
 
@@ -251,4 +256,7 @@ class BankApp(QMainWindow):
 
 
 if __name__ == "__main__":
-    app
+    app = QApplication(sys.argv)
+    window = BankApp()
+    window.show()
+    sys.exit(app.exec_())
