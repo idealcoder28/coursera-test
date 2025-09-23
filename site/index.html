@@ -22,8 +22,6 @@ class BankingApp(QMainWindow):
 
         # Initialize login screen
         self.show_login()
-
-        # Apply default theme
         self.apply_theme()
 
         self.setCentralWidget(self.container)
@@ -32,30 +30,25 @@ class BankingApp(QMainWindow):
     def show_login(self):
         self.clear_layout()
 
-        # Title
         title = QLabel("Welcome to Secure Bank")
         title.setStyleSheet("font-size: 22px; font-weight: bold;")
         title.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(title)
 
-        # Subtitle
         subtitle = QLabel("Please enter your PIN to continue")
         subtitle.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(subtitle)
 
-        # PIN input
         self.pin_input = QLineEdit()
         self.pin_input.setEchoMode(QLineEdit.Password)
         self.pin_input.setPlaceholderText("Enter 4-digit PIN")
         self.pin_input.setMaxLength(4)
         self.layout.addWidget(self.pin_input)
 
-        # Login button
         login_btn = QPushButton("Login")
         login_btn.clicked.connect(self.login)
         self.layout.addWidget(login_btn)
 
-        # Theme toggle
         theme_btn = QPushButton("Toggle Light/Dark Mode")
         theme_btn.clicked.connect(self.toggle_theme)
         self.layout.addWidget(theme_btn)
@@ -64,65 +57,90 @@ class BankingApp(QMainWindow):
         if self.pin_input.text() == self.correct_pin:
             self.show_dashboard()
         else:
-            QMessageBox.warning(self, "Error", "Incorrect PIN!")
+            self.show_alert("Error", "Incorrect PIN!", error=True)
 
     # ------------------ DASHBOARD ------------------ #
     def show_dashboard(self):
         self.clear_layout()
 
-        # Bank Dashboard Card
         card = QFrame()
         card.setFrameShape(QFrame.StyledPanel)
         card.setStyleSheet("padding: 15px; border-radius: 10px;")
         card_layout = QVBoxLayout(card)
 
-        # Greeting
         self.label = QLabel(f"Welcome, Valued Customer!\nBalance: ${self.balance}")
         self.label.setStyleSheet("font-size: 18px; font-weight: bold;")
         self.label.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(self.label)
 
-        # Actions
-        deposit_btn = QPushButton("Deposit $100")
+        # Deposit input
+        deposit_layout = QHBoxLayout()
+        self.deposit_input = QLineEdit()
+        self.deposit_input.setPlaceholderText("Enter deposit amount")
+        deposit_btn = QPushButton("Deposit")
         deposit_btn.clicked.connect(self.deposit)
-        card_layout.addWidget(deposit_btn)
+        deposit_layout.addWidget(self.deposit_input)
+        deposit_layout.addWidget(deposit_btn)
+        card_layout.addLayout(deposit_layout)
 
-        withdraw_btn = QPushButton("Withdraw $100")
+        # Withdraw input
+        withdraw_layout = QHBoxLayout()
+        self.withdraw_input = QLineEdit()
+        self.withdraw_input.setPlaceholderText("Enter withdraw amount")
+        withdraw_btn = QPushButton("Withdraw")
         withdraw_btn.clicked.connect(self.withdraw)
-        card_layout.addWidget(withdraw_btn)
+        withdraw_layout.addWidget(self.withdraw_input)
+        withdraw_layout.addWidget(withdraw_btn)
+        card_layout.addLayout(withdraw_layout)
 
+        # Check balance
         balance_btn = QPushButton("Check Balance")
         balance_btn.clicked.connect(self.check_balance)
         card_layout.addWidget(balance_btn)
 
+        # Logout
         logout_btn = QPushButton("Logout")
         logout_btn.clicked.connect(self.logout)
         card_layout.addWidget(logout_btn)
 
-        # Add card to main layout
         self.layout.addWidget(card)
 
-        # Theme toggle
         theme_btn = QPushButton("Toggle Light/Dark Mode")
         theme_btn.clicked.connect(self.toggle_theme)
         self.layout.addWidget(theme_btn)
 
     # ------------------ BANK FUNCTIONS ------------------ #
     def deposit(self):
-        self.balance += 100
-        self.label.setText(f"Welcome, Valued Customer!\nBalance: ${self.balance}")
-        QMessageBox.information(self, "Deposit", "Deposited $100 successfully!")
+        try:
+            amount = int(self.deposit_input.text())
+            if amount > 0:
+                self.balance += amount
+                self.label.setText(f"Welcome, Valued Customer!\nBalance: ${self.balance}")
+                self.show_alert("Deposit", f"Deposited ${amount} successfully!")
+                self.deposit_input.clear()
+            else:
+                self.show_alert("Error", "Enter a positive amount.", error=True)
+        except:
+            self.show_alert("Error", "Invalid deposit amount.", error=True)
 
     def withdraw(self):
-        if self.balance >= 100:
-            self.balance -= 100
-            self.label.setText(f"Welcome, Valued Customer!\nBalance: ${self.balance}")
-            QMessageBox.information(self, "Withdraw", "Withdrew $100 successfully!")
-        else:
-            QMessageBox.warning(self, "Error", "Insufficient balance!")
+        try:
+            amount = int(self.withdraw_input.text())
+            if amount > 0:
+                if self.balance >= amount:
+                    self.balance -= amount
+                    self.label.setText(f"Welcome, Valued Customer!\nBalance: ${self.balance}")
+                    self.show_alert("Withdraw", f"Withdrew ${amount} successfully!")
+                else:
+                    self.show_alert("Error", "Insufficient balance!", error=True)
+                self.withdraw_input.clear()
+            else:
+                self.show_alert("Error", "Enter a positive amount.", error=True)
+        except:
+            self.show_alert("Error", "Invalid withdraw amount.", error=True)
 
     def check_balance(self):
-        QMessageBox.information(self, "Balance", f"Your balance is: ${self.balance}")
+        self.show_alert("Balance", f"Your balance is: ${self.balance}")
 
     def logout(self):
         self.show_login()
@@ -177,6 +195,23 @@ class BankingApp(QMainWindow):
                     border-radius: 6px;
                 }
             """)
+
+    def show_alert(self, title, message, error=False):
+        msg = QMessageBox(self)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        if self.is_dark:
+            msg.setStyleSheet("""
+                QMessageBox { background-color: #2c2c2c; color: white; }
+                QLabel { color: white; }
+                QPushButton { background-color: #1DB954; color: white; padding: 5px; }
+                QPushButton:hover { background-color: #1ed760; }
+            """)
+        if error:
+            msg.setIcon(QMessageBox.Warning)
+        else:
+            msg.setIcon(QMessageBox.Information)
+        msg.exec_()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
