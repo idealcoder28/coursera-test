@@ -1,8 +1,7 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QMessageBox, QFrame, QInputDialog,
-    QScrollArea
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QLineEdit,
+    QPushButton, QMessageBox, QFrame, QInputDialog, QScrollArea
 )
 from PyQt5.QtCore import Qt
 
@@ -18,10 +17,7 @@ class BankApp(QMainWindow):
         self.logged_in = False
         self.balance = 0
         self.history = []
-
-        # Accounts for transfer
         self.accounts = {"Me": 0, "Friend": 0, "Family": 0}
-
         self.is_dark = False
 
         # Scrollable main container
@@ -36,17 +32,16 @@ class BankApp(QMainWindow):
         self.main_layout.setContentsMargins(30, 20, 30, 20)
         self.main_layout.setSpacing(20)
 
-        # Show login screen first
+        # Show login first
         self.show_login()
         self.apply_theme()
 
     # ------------------ LOGIN SCREEN ------------------ #
     def show_login(self):
         self.clear_layout()
-
         card = QFrame()
         card.setFrameShape(QFrame.StyledPanel)
-        card.setStyleSheet("padding: 25px; border-radius: 15px; background-color: #ffffff;")
+        card.setStyleSheet("padding: 25px; border-radius: 15px;")
         card_layout = QVBoxLayout(card)
         card_layout.setSpacing(15)
 
@@ -62,13 +57,12 @@ class BankApp(QMainWindow):
         self.user_input = QLineEdit()
         self.user_input.setPlaceholderText("Username")
         self.user_input.setFixedHeight(35)
+        card_layout.addWidget(self.user_input)
 
         self.pass_input = QLineEdit()
         self.pass_input.setPlaceholderText("Password")
         self.pass_input.setEchoMode(QLineEdit.Password)
         self.pass_input.setFixedHeight(35)
-
-        card_layout.addWidget(self.user_input)
         card_layout.addWidget(self.pass_input)
 
         self.login_btn = QPushButton("Login")
@@ -97,10 +91,9 @@ class BankApp(QMainWindow):
     # ------------------ DASHBOARD ------------------ #
     def show_dashboard(self):
         self.clear_layout()
-
         card = QFrame()
         card.setFrameShape(QFrame.StyledPanel)
-        card.setStyleSheet("padding: 20px; border-radius: 15px; background-color: #ffffff;")
+        card.setStyleSheet("padding: 20px; border-radius: 15px;")
         card_layout = QVBoxLayout(card)
         card_layout.setSpacing(12)
 
@@ -109,7 +102,6 @@ class BankApp(QMainWindow):
         self.label.setAlignment(Qt.AlignCenter)
         card_layout.addWidget(self.label)
 
-        # Action buttons
         buttons = [
             ("Deposit Money", self.deposit),
             ("Withdraw Money", self.withdraw),
@@ -126,7 +118,6 @@ class BankApp(QMainWindow):
             btn.clicked.connect(func)
             card_layout.addWidget(btn)
 
-        # Theme toggle at bottom
         theme_btn = QPushButton("Toggle Light/Dark Mode")
         theme_btn.setFixedHeight(35)
         theme_btn.clicked.connect(self.toggle_theme)
@@ -204,7 +195,7 @@ class BankApp(QMainWindow):
                 QLabel { color: #ffffff; }
                 QPushButton {
                     background-color: #1DB954;
-                    color: white;
+                    color: #ffffff;
                     font-size: 14px;
                     border-radius: 6px;
                     padding: 6px;
@@ -223,7 +214,7 @@ class BankApp(QMainWindow):
                 QLabel { color: #0d1b2a; }
                 QPushButton {
                     background-color: #003366;
-                    color: white;
+                    color: #ffffff;
                     font-size: 14px;
                     border-radius: 6px;
                     padding: 6px;
