@@ -1,189 +1,246 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QPushButton, QLabel, QVBoxLayout,
-    QMessageBox, QLineEdit, QHBoxLayout, QComboBox, QTextEdit
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QLineEdit, QPushButton, QMessageBox, QFrame, QInputDialog
 )
-from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
 
-class BankApp(QWidget):
+class BankApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Banking App")
-        self.setGeometry(200, 200, 450, 400)
+        self.setWindowTitle("🏦 Secure Banking System")
+        self.setGeometry(200, 200, 500, 500)
 
+        # User and account details
+        self.username = "admin"
+        self.password = "1234"
         self.logged_in = False
         self.balance = 0
         self.history = []
 
-        # Accounts for transfer demo
+        # Accounts for transfer
         self.accounts = {"Me": 0, "Friend": 0, "Family": 0}
 
-        self.dark_mode = False
-        self.initUI()
+        self.is_dark = False
 
-    def initUI(self):
-        layout = QVBoxLayout()
+        # Main container
+        self.container = QWidget()
+        self.layout = QVBoxLayout(self.container)
+        self.layout.setAlignment(Qt.AlignTop)
+        self.setCentralWidget(self.container)
 
-        self.label = QLabel("Welcome to Your Bank", self)
-        self.label.setFont(QFont("Arial", 14))
-
-        # Login
-        self.user_input = QLineEdit()
-        self.user_input.setPlaceholderText("Enter username")
-        self.pass_input = QLineEdit()
-        self.pass_input.setPlaceholderText("Enter password")
-        self.pass_input.setEchoMode(QLineEdit.Password)
-        self.login_button = QPushButton("Login")
-        self.logout_button = QPushButton("Logout")
-        self.logout_button.setEnabled(False)
-
-        self.login_button.clicked.connect(self.login)
-        self.logout_button.clicked.connect(self.logout)
-
-        # Actions
-        self.deposit_button = QPushButton("Deposit Money")
-        self.withdraw_button = QPushButton("Withdraw Money")
-        self.transfer_button = QPushButton("Transfer Money")
-        self.balance_button = QPushButton("Check Balance")
-        self.history_button = QPushButton("Transaction History")
-        self.reset_button = QPushButton("Reset Account")
-
-        self.deposit_button.clicked.connect(self.deposit)
-        self.withdraw_button.clicked.connect(self.withdraw)
-        self.transfer_button.clicked.connect(self.transfer)
-        self.balance_button.clicked.connect(self.check_balance)
-        self.history_button.clicked.connect(self.show_history)
-        self.reset_button.clicked.connect(self.reset_account)
-
-        for btn in [self.deposit_button, self.withdraw_button,
-                    self.transfer_button, self.balance_button,
-                    self.history_button, self.reset_button]:
-            btn.setEnabled(False)
-
-        # Dark mode
-        self.theme_button = QPushButton("Toggle Light/Dark Mode")
-        self.theme_button.clicked.connect(self.toggle_theme)
-
-        # Layout
-        layout.addWidget(self.label)
-        layout.addWidget(self.user_input)
-        layout.addWidget(self.pass_input)
-
-        hlayout = QHBoxLayout()
-        hlayout.addWidget(self.login_button)
-        hlayout.addWidget(self.logout_button)
-        layout.addLayout(hlayout)
-
-        layout.addWidget(self.deposit_button)
-        layout.addWidget(self.withdraw_button)
-        layout.addWidget(self.transfer_button)
-        layout.addWidget(self.balance_button)
-        layout.addWidget(self.history_button)
-        layout.addWidget(self.reset_button)
-        layout.addWidget(self.theme_button)
-
-        self.setLayout(layout)
+        # Show login screen
+        self.show_login()
         self.apply_theme()
 
+    # ------------------ LOGIN SCREEN ------------------ #
+    def show_login(self):
+        self.clear_layout()
+
+        title = QLabel("Welcome to Secure Bank")
+        title.setStyleSheet("font-size: 22px; font-weight: bold;")
+        title.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(title)
+
+        subtitle = QLabel("Please enter your credentials")
+        subtitle.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(subtitle)
+
+        # Input fields
+        self.user_input = QLineEdit()
+        self.user_input.setPlaceholderText("Username")
+        self.pass_input = QLineEdit()
+        self.pass_input.setPlaceholderText("Password")
+        self.pass_input.setEchoMode(QLineEdit.Password)
+
+        self.layout.addWidget(self.user_input)
+        self.layout.addWidget(self.pass_input)
+
+        # Buttons
+        btn_layout = QHBoxLayout()
+        self.login_btn = QPushButton("Login")
+        self.login_btn.clicked.connect(self.login)
+        self.logout_btn = QPushButton("Logout")
+        self.logout_btn.clicked.connect(self.logout)
+        self.logout_btn.setEnabled(False)
+        btn_layout.addWidget(self.login_btn)
+        btn_layout.addWidget(self.logout_btn)
+        self.layout.addLayout(btn_layout)
+
+        # Theme toggle
+        theme_btn = QPushButton("Toggle Light/Dark Mode")
+        theme_btn.clicked.connect(self.toggle_theme)
+        self.layout.addWidget(theme_btn)
+
     def login(self):
-        if self.user_input.text() == "admin" and self.pass_input.text() == "1234":
+        if self.user_input.text() == self.username and self.pass_input.text() == self.password:
             self.logged_in = True
-            self.label.setText(f"Welcome {self.user_input.text()}!")
-            self.toggle_buttons(True)
-            self.login_button.setEnabled(False)
-            self.logout_button.setEnabled(True)
+            self.show_dashboard()
         else:
-            self.show_message("Error", "Invalid username or password!")
+            self.show_alert("Error", "Invalid username or password!", error=True)
 
     def logout(self):
         self.logged_in = False
-        self.label.setText("Welcome to Your Bank")
-        self.toggle_buttons(False)
-        self.login_button.setEnabled(True)
-        self.logout_button.setEnabled(False)
+        self.show_login()
 
-    def toggle_buttons(self, state):
-        for btn in [self.deposit_button, self.withdraw_button,
-                    self.transfer_button, self.balance_button,
-                    self.history_button, self.reset_button]:
-            btn.setEnabled(state)
+    # ------------------ DASHBOARD ------------------ #
+    def show_dashboard(self):
+        self.clear_layout()
 
+        card = QFrame()
+        card.setFrameShape(QFrame.StyledPanel)
+        card.setStyleSheet("padding: 15px; border-radius: 10px;")
+        card_layout = QVBoxLayout(card)
+        card_layout.setAlignment(Qt.AlignTop)
+
+        self.label = QLabel(f"Welcome, {self.username}!\nBalance: ₹{self.balance}")
+        self.label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        self.label.setAlignment(Qt.AlignCenter)
+        card_layout.addWidget(self.label)
+
+        # Actions buttons with spacing
+        buttons = [
+            ("Deposit Money", self.deposit),
+            ("Withdraw Money", self.withdraw),
+            ("Transfer Money", self.transfer),
+            ("Check Balance", self.check_balance),
+            ("Transaction History", self.show_history),
+            ("Reset Account", self.reset_account),
+            ("Logout", self.logout)
+        ]
+
+        for text, func in buttons:
+            btn = QPushButton(text)
+            btn.clicked.connect(func)
+            btn.setMinimumHeight(35)
+            card_layout.addWidget(btn)
+
+        self.layout.addWidget(card)
+
+        # Theme toggle at bottom
+        theme_btn = QPushButton("Toggle Light/Dark Mode")
+        theme_btn.clicked.connect(self.toggle_theme)
+        self.layout.addWidget(theme_btn)
+
+    # ------------------ BANK FUNCTIONS ------------------ #
     def deposit(self):
-        amount, ok = self.get_amount("Deposit Amount")
+        amount, ok = QInputDialog.getInt(self, "Deposit Amount", "Enter amount (₹):", 0, 0)
         if ok and amount > 0:
             self.balance += amount
             self.accounts["Me"] += amount
             self.history.append(f"Deposited: ₹{amount}")
-            self.show_message("Success", f"Deposited ₹{amount}")
+            self.label.setText(f"Welcome, {self.username}!\nBalance: ₹{self.balance}")
+            self.show_alert("Deposit", f"Deposited ₹{amount} successfully!")
+        elif ok:
+            self.show_alert("Error", "Enter a positive amount.", error=True)
 
     def withdraw(self):
-        amount, ok = self.get_amount("Withdraw Amount")
+        amount, ok = QInputDialog.getInt(self, "Withdraw Amount", "Enter amount (₹):", 0, 0)
         if ok and 0 < amount <= self.balance:
             self.balance -= amount
             self.accounts["Me"] -= amount
             self.history.append(f"Withdrew: ₹{amount}")
-            self.show_message("Success", f"Withdrew ₹{amount}")
+            self.label.setText(f"Welcome, {self.username}!\nBalance: ₹{self.balance}")
+            self.show_alert("Withdraw", f"Withdrew ₹{amount} successfully!")
         elif ok:
-            self.show_message("Error", "Insufficient balance!")
+            self.show_alert("Error", "Insufficient balance!", error=True)
 
     def transfer(self):
-        if not self.logged_in:
-            return
-        amount, ok = self.get_amount("Enter Transfer Amount")
+        amount, ok = QInputDialog.getInt(self, "Transfer Amount", "Enter amount (₹):", 0, 0)
         if ok and 0 < amount <= self.balance:
             # Pick receiver
-            receiver, ok2 = self.get_receiver()
+            receiver, ok2 = QInputDialog.getItem(self, "Transfer", "Select recipient:",
+                                                list(self.accounts.keys())[1:], 0, False)
             if ok2:
                 self.balance -= amount
                 self.accounts["Me"] -= amount
                 self.accounts[receiver] += amount
                 self.history.append(f"Transferred ₹{amount} to {receiver}")
-                self.show_message("Success", f"Transferred ₹{amount} to {receiver}")
+                self.label.setText(f"Welcome, {self.username}!\nBalance: ₹{self.balance}")
+                self.show_alert("Transfer", f"Transferred ₹{amount} to {receiver}")
         elif ok:
-            self.show_message("Error", "Insufficient balance!")
+            self.show_alert("Error", "Insufficient balance!", error=True)
 
     def check_balance(self):
-        self.show_message("Balance", f"Your Balance: ₹{self.balance}")
+        self.show_alert("Balance", f"Your Balance: ₹{self.balance}")
 
     def show_history(self):
         history_text = "\n".join(self.history) if self.history else "No transactions yet."
-        self.show_message("Transaction History", history_text)
+        self.show_alert("Transaction History", history_text)
 
     def reset_account(self):
         self.balance = 0
         self.accounts = {"Me": 0, "Friend": 0, "Family": 0}
         self.history.clear()
-        self.show_message("Reset", "Account has been reset.")
+        self.label.setText(f"Welcome, {self.username}!\nBalance: ₹{self.balance}")
+        self.show_alert("Reset", "Account has been reset.")
 
-    def get_amount(self, title):
-        from PyQt5.QtWidgets import QInputDialog
-        amount, ok = QInputDialog.getInt(self, title, "Enter amount (₹):", 0, 0)
-        return amount, ok
-
-    def get_receiver(self):
-        from PyQt5.QtWidgets import QInputDialog
-        receiver, ok = QInputDialog.getItem(self, "Transfer", "Select recipient:",
-                                            list(self.accounts.keys())[1:], 0, False)
-        return receiver, ok
+    # ------------------ UTILITIES ------------------ #
+    def clear_layout(self):
+        for i in reversed(range(self.layout.count())):
+            widget = self.layout.itemAt(i).widget()
+            if widget:
+                widget.deleteLater()
 
     def toggle_theme(self):
-        self.dark_mode = not self.dark_mode
+        self.is_dark = not self.is_dark
         self.apply_theme()
 
     def apply_theme(self):
-        if self.dark_mode:
-            self.setStyleSheet("background-color: #121212; color: white;")
-            self.label.setStyleSheet("color: white;")
+        if self.is_dark:
+            self.setStyleSheet("""
+                QMainWindow { background-color: #121212; }
+                QLabel { color: #ffffff; }
+                QPushButton {
+                    background-color: #1DB954;
+                    color: white;
+                    font-size: 14px;
+                    border-radius: 6px;
+                    padding: 6px;
+                }
+                QPushButton:hover { background-color: #1ed760; }
+                QLineEdit {
+                    background: #2c2c2c;
+                    color: white;
+                    padding: 5px;
+                    border-radius: 6px;
+                }
+            """)
         else:
-            self.setStyleSheet("background-color: white; color: black;")
-            self.label.setStyleSheet("color: black;")
+            self.setStyleSheet("""
+                QMainWindow { background-color: #f0f2f5; }
+                QLabel { color: #0d1b2a; }
+                QPushButton {
+                    background-color: #003366;
+                    color: white;
+                    font-size: 14px;
+                    border-radius: 6px;
+                    padding: 6px;
+                }
+                QPushButton:hover { background-color: #0055a5; }
+                QLineEdit {
+                    background: white;
+                    color: black;
+                    padding: 5px;
+                    border-radius: 6px;
+                }
+            """)
 
-    def show_message(self, title, text):
+    def show_alert(self, title, message, error=False):
         msg = QMessageBox(self)
         msg.setWindowTitle(title)
-        msg.setText(text)
-        if self.dark_mode:
-            msg.setStyleSheet("QLabel { color: white; } QPushButton { color: black; }")
+        msg.setText(message)
+        if self.is_dark:
+            msg.setStyleSheet("""
+                QMessageBox { background-color: #2c2c2c; color: white; }
+                QLabel { color: white; }
+                QPushButton { background-color: #1DB954; color: white; padding: 5px; }
+                QPushButton:hover { background-color: #1ed760; }
+            """)
+        if error:
+            msg.setIcon(QMessageBox.Warning)
+        else:
+            msg.setIcon(QMessageBox.Information)
         msg.exec_()
 
 if __name__ == "__main__":
