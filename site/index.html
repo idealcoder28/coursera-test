@@ -1,9 +1,63 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Hello Coursera!</title>
-</head>
-<body>
-<h1>Hello Coursera! It's a great course!!!</h1>
-</body>
-</html>
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtCore import QUrl
+
+class MusicPlayer(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Cool Music Player")
+        self.setGeometry(200, 200, 400, 200)
+
+        # Player
+        self.player = QMediaPlayer()
+
+        # Main widget
+        self.container = QWidget()
+        self.layout = QVBoxLayout(self.container)
+
+        # Song label
+        self.song_label = QLabel("No song loaded")
+        self.song_label.setStyleSheet("font-size:16px; font-weight:bold;")
+        self.layout.addWidget(self.song_label)
+
+        # Buttons
+        self.open_btn = QPushButton("🎵 Open Song")
+        self.open_btn.clicked.connect(self.open_file)
+        self.layout.addWidget(self.open_btn)
+
+        self.play_btn = QPushButton("▶️ Play")
+        self.play_btn.clicked.connect(self.play_song)
+        self.layout.addWidget(self.play_btn)
+
+        self.pause_btn = QPushButton("⏸️ Pause")
+        self.pause_btn.clicked.connect(self.pause_song)
+        self.layout.addWidget(self.pause_btn)
+
+        self.stop_btn = QPushButton("⏹️ Stop")
+        self.stop_btn.clicked.connect(self.stop_song)
+        self.layout.addWidget(self.stop_btn)
+
+        self.setCentralWidget(self.container)
+
+    def open_file(self):
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open Music", "", "Audio Files (*.mp3 *.wav)")
+        if file_name:
+            self.player.setMedia(QMediaContent(QUrl.fromLocalFile(file_name)))
+            self.song_label.setText("Playing: " + file_name.split("/")[-1])
+
+    def play_song(self):
+        self.player.play()
+
+    def pause_song(self):
+        self.player.pause()
+
+    def stop_song(self):
+        self.player.stop()
+        self.song_label.setText("No song loaded")
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MusicPlayer()
+    window.show()
+    sys.exit(app.exec_())
