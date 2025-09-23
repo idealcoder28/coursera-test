@@ -1,402 +1,185 @@
-# atm_app.py
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QLabel, QVBoxLayout, QHBoxLayout,
-    QPushButton, QStackedWidget, QLineEdit, QMessageBox, QInputDialog,
-    QFrame, QSizePolicy
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QLineEdit, QPushButton, QMessageBox, QFrame
 )
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QFont, QPalette, QColor
-from PyQt5.QtWidgets import QGraphicsDropShadowEffect
+from PyQt5.QtCore import Qt
 
-PIN_CODE = "1234"  # default PIN for demo
-
-
-def apply_shadow(widget, blur_radius=20, x=0, y=6, color=QColor(0, 0, 0, 120)):
-    shadow = QGraphicsDropShadowEffect()
-    shadow.setBlurRadius(blur_radius)
-    shadow.setOffset(x, y)
-    shadow.setColor(color)
-    widget.setGraphicsEffect(shadow)
-
-
-class KeyPad(QWidget):
-    """Numeric keypad widget used for PIN entry"""
-    def __init__(self, on_digit, on_clear, on_enter):
-        super().__init__()
-        self.on_digit = on_digit
-        self.on_clear = on_clear
-        self.on_enter = on_enter
-        self.init_ui()
-
-    def init_ui(self):
-        layout = QVBoxLayout()
-        layout.setSpacing(6)
-        rows = [
-            ["1", "2", "3"],
-            ["4", "5", "6"],
-            ["7", "8", "9"],
-            ["Clear", "0", "Enter"]
-        ]
-        btn_style = """
-            QPushButton {
-                min-width: 72px;
-                min-height: 48px;
-                border-radius: 10px;
-                background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 #ffffff, stop:1 #e6e6e6);
-                font-size: 16px;
-            }
-            QPushButton:pressed { background-color: #d0d0d0; }
-        """
-        for r in rows:
-            h = QHBoxLayout()
-            h.setSpacing(8)
-            for label in r:
-                btn = QPushButton(label)
-                btn.setStyleSheet(btn_style)
-                if label.isdigit():
-                    btn.clicked.connect(lambda _, d=label: self.on_digit(d))
-                elif label == "Clear":
-                    btn.clicked.connect(self.on_clear)
-                else:
-                    btn.clicked.connect(self.on_enter)
-                apply_shadow(btn, blur_radius=8, x=0, y=3)
-                h.addWidget(btn)
-            layout.addLayout(h)
-        self.setLayout(layout)
-
-
-class LoginPage(QWidget):
-    def __init__(self, on_success, theme_toggle_fn):
-        super().__init__()
-        self.on_success = on_success
-        self.theme_toggle_fn = theme_toggle_fn
-        self.pin_value = ""
-        self.init_ui()
-
-    def init_ui(self):
-        main = QVBoxLayout()
-        main.setContentsMargins(24, 24, 24, 24)
-        main.setSpacing(14)
-
-        title = QLabel("Welcome to Trident Bank")
-        title.setFont(QFont("Arial", 18, QFont.Bold))
-        title.setAlignment(Qt.AlignCenter)
-
-        subtitle = QLabel("Enter your 4-digit PIN")
-        subtitle.setAlignment(Qt.AlignCenter)
-        subtitle.setStyleSheet("color: gray;")
-
-        # PIN display (masked)
-        self.pin_display = QLineEdit()
-        self.pin_display.setEchoMode(QLineEdit.Password)
-        self.pin_display.setReadOnly(True)
-        self.pin_display.setFixedHeight(36)
-        self.pin_display.setAlignment(Qt.AlignCenter)
-        self.pin_display.setFont(QFont("Consolas", 16))
-        self.pin_display.setStyleSheet("""
-            QLineEdit {
-                border-radius: 8px;
-                background: #f7f7f7;
-                padding: 6px;
-            }
-        """)
-
-        # keypad
-        keypad = KeyPad(self.handle_digit, self.handle_clear, self.handle_enter)
-
-        # theme toggle & info row
-        bottom_row = QHBoxLayout()
-        bottom_row.setSpacing(8)
-        theme_btn = QPushButton("Toggle Theme")
-        theme_btn.clicked.connect(self.theme_toggle_fn)
-        theme_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        theme_btn.setFixedHeight(36)
-        theme_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 8px;
-                background-color: #1DB954;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:pressed { background-color: #16a34a; }
-        """)
-        apply_shadow(theme_btn, blur_radius=10, x=0, y=4)
-
-        quick_hint = QLabel("PIN: 1234 (demo)")
-        quick_hint.setAlignment(Qt.AlignCenter)
-        quick_hint.setStyleSheet("color: gray; font-size: 12px;")
-        bottom_row.addWidget(quick_hint, 2)
-        bottom_row.addWidget(theme_btn, 1)
-
-        # container frame
-        frame = QFrame()
-        frame_layout = QVBoxLayout(frame)
-        frame_layout.addWidget(title)
-        frame_layout.addWidget(subtitle)
-        frame_layout.addWidget(self.pin_display)
-        frame_layout.addWidget(keypad)
-        frame_layout.addLayout(bottom_row)
-        frame.setStyleSheet("""
-            QFrame {
-                background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 #ffffff, stop:1 #fbfbfb);
-                border-radius: 14px;
-            }
-        """)
-        apply_shadow(frame, blur_radius=30, x=0, y=12)
-
-        main.addWidget(frame)
-        self.setLayout(main)
-
-    def handle_digit(self, d):
-        if len(self.pin_value) < 6:  # allow up to 6 just in case
-            self.pin_value += d
-            self.pin_display.setText("*" * len(self.pin_value))
-
-    def handle_clear(self):
-        self.pin_value = ""
-        self.pin_display.clear()
-
-    def handle_enter(self):
-        if self.pin_value == PIN_CODE:
-            self.on_success()
-            self.handle_clear()
-        else:
-            QMessageBox.warning(self, "Invalid PIN", "Incorrect PIN. Try again.")
-            self.handle_clear()
-
-
-class DashboardPage(QWidget):
-    def __init__(self, on_logout):
-        super().__init__()
-        self.on_logout = on_logout
-        self.balance = 1000  # starting balance for demo
-        self.init_ui()
-
-    def init_ui(self):
-        main = QVBoxLayout()
-        main.setContentsMargins(20, 20, 20, 20)
-        main.setSpacing(12)
-
-        # Header card
-        header = QFrame()
-        header.setFixedHeight(110)
-        header.setStyleSheet("""
-            QFrame {
-                border-radius: 12px;
-                background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-                  stop:0 #1f2937, stop:1 #111827);
-            }
-        """)
-        header_layout = QVBoxLayout(header)
-        header_title = QLabel("Account Overview")
-        header_title.setFont(QFont("Arial", 14, QFont.Bold))
-        header_title.setStyleSheet("color: white;")
-        header_balance = QLabel(f"Balance: ${self.balance:.2f}")
-        header_balance.setFont(QFont("Consolas", 20, QFont.Bold))
-        header_balance.setStyleSheet("color: #a7f3d0;")  # light green
-        header_balance.setObjectName("balance_label")
-        header_balance.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        header_layout.addWidget(header_title)
-        header_layout.addWidget(header_balance)
-        header_layout.setContentsMargins(14, 10, 14, 10)
-        apply_shadow(header, blur_radius=30, x=0, y=12, color=QColor(0, 0, 0, 160))
-
-        # Controls row
-        controls = QHBoxLayout()
-        controls.setSpacing(12)
-
-        btn_style_primary = """
-            QPushButton {
-                min-width: 110px;
-                min-height: 44px;
-                border-radius: 10px;
-                background-color: #1DB954;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:pressed { background-color: #169d45; }
-        """
-        btn_style_secondary = """
-            QPushButton {
-                min-width: 110px;
-                min-height: 44px;
-                border-radius: 10px;
-                background-color: #2d3748;
-                color: white;
-                font-weight: bold;
-            }
-            QPushButton:pressed { background-color: #1f2937; }
-        """
-
-        deposit_btn = QPushButton("Deposit")
-        deposit_btn.setStyleSheet(btn_style_primary)
-        deposit_btn.clicked.connect(self.deposit)
-
-        withdraw_btn = QPushButton("Withdraw")
-        withdraw_btn.setStyleSheet(btn_style_secondary)
-        withdraw_btn.clicked.connect(self.withdraw)
-
-        check_btn = QPushButton("Check Balance")
-        check_btn.setStyleSheet("""
-            QPushButton { min-width: 140px; min-height:44px; border-radius:10px; background:#111827; color:white; }
-            QPushButton:pressed { background:#0b1220; }
-        """)
-        check_btn.clicked.connect(self.check_balance)
-
-        logout_btn = QPushButton("Logout")
-        logout_btn.setStyleSheet("""
-            QPushButton { min-width: 100px; min-height:44px; border-radius:10px; background:#ef4444; color:white; font-weight:bold; }
-            QPushButton:pressed { background:#dc2626; }
-        """)
-        logout_btn.clicked.connect(self.logout)
-
-        for b in (deposit_btn, withdraw_btn, check_btn, logout_btn):
-            apply_shadow(b, blur_radius=12, x=0, y=6)
-
-        controls.addWidget(deposit_btn)
-        controls.addWidget(withdraw_btn)
-        controls.addWidget(check_btn)
-        controls.addWidget(logout_btn)
-
-        # Activity area / history placeholder
-        activity = QFrame()
-        activity.setStyleSheet("""
-            QFrame {
-                background: #ffffff;
-                border-radius: 12px;
-            }
-        """)
-        activity_layout = QVBoxLayout(activity)
-        activity_label = QLabel("Recent Activity")
-        activity_label.setFont(QFont("Arial", 12, QFont.Bold))
-        activity_layout.addWidget(activity_label)
-        activity_layout.addWidget(QLabel("No transactions yet — use Deposit / Withdraw to create activity."))
-        activity.setFixedHeight(140)
-        apply_shadow(activity, blur_radius=12, x=0, y=6)
-
-        # assemble
-        main.addWidget(header)
-        main.addLayout(controls)
-        main.addWidget(activity)
-        main.addStretch()
-
-        self.setLayout(main)
-
-    def deposit(self):
-        amount, ok = QInputDialog.getInt(self, "Deposit", "Enter amount to deposit:", min=1, step=10)
-        if ok:
-            self.balance += amount
-            self._update_balance_label()
-            QMessageBox.information(self, "Deposit", f"${amount} deposited successfully!")
-
-    def withdraw(self):
-        amount, ok = QInputDialog.getInt(self, "Withdraw", "Enter amount to withdraw:", min=1, step=10)
-        if ok:
-            if amount <= self.balance:
-                self.balance -= amount
-                self._update_balance_label()
-                QMessageBox.information(self, "Withdraw", f"${amount} withdrawn successfully!")
-            else:
-                QMessageBox.warning(self, "Insufficient Funds", "You don't have enough balance for this withdrawal.")
-
-    def check_balance(self):
-        QMessageBox.information(self, "Balance", f"Your balance is: ${self.balance:.2f}")
-
-    def logout(self):
-        confirm = QMessageBox.question(self, "Logout", "Are you sure you want to logout?", QMessageBox.Yes | QMessageBox.No)
-        if confirm == QMessageBox.Yes:
-            self.on_logout()
-
-    def _update_balance_label(self):
-        lbl = self.findChild(QLabel, "balance_label")
-        if lbl:
-            lbl.setText(f"Balance: ${self.balance:.2f}")
-
-
-class ATMWindow(QMainWindow):
+class BankingApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Mini Banking App — Trident Bank")
-        self.resize(480, 520)
-        self._is_dark = True  # default start in dark mode
+        self.setWindowTitle("🏦 Secure Banking System")
+        self.setGeometry(200, 200, 500, 400)
 
-        # stacked pages
-        self.stack = QStackedWidget()
-        self.setCentralWidget(self.stack)
+        # Example account (PIN + balance)
+        self.correct_pin = "1234"
+        self.balance = 1000
+        self.is_dark = False  # light mode default
 
-        # create pages
-        self.dashboard_page = DashboardPage(self.handle_logout)
-        self.login_page = LoginPage(self.handle_login_success, self.toggle_theme)
+        # Main container
+        self.container = QWidget()
+        self.layout = QVBoxLayout(self.container)
 
-        # add pages (login first)
-        self.stack.addWidget(self.login_page)      # index 0
-        self.stack.addWidget(self.dashboard_page)  # index 1
-        self.stack.setCurrentIndex(0)
+        # Initialize login screen
+        self.show_login()
 
-        # apply initial theme
-        self.apply_theme(self._is_dark)
+        # Apply default theme
+        self.apply_theme()
 
-        # small status bar
-        self.statusBar().showMessage("Ready")
+        self.setCentralWidget(self.container)
 
-    def handle_login_success(self):
-        self.statusBar().showMessage("Login successful")
-        # ensure dashboard shows latest balance
-        self.dashboard_page._update_balance_label()
-        self.stack.setCurrentIndex(1)
+    # ------------------ LOGIN SCREEN ------------------ #
+    def show_login(self):
+        self.clear_layout()
 
-    def handle_logout(self):
-        self.statusBar().showMessage("Logged out")
-        # reset login page display
-        self.login_page.handle_clear()
-        self.stack.setCurrentIndex(0)
+        # Title
+        title = QLabel("Welcome to Secure Bank")
+        title.setStyleSheet("font-size: 22px; font-weight: bold;")
+        title.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(title)
+
+        # Subtitle
+        subtitle = QLabel("Please enter your PIN to continue")
+        subtitle.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(subtitle)
+
+        # PIN input
+        self.pin_input = QLineEdit()
+        self.pin_input.setEchoMode(QLineEdit.Password)
+        self.pin_input.setPlaceholderText("Enter 4-digit PIN")
+        self.pin_input.setMaxLength(4)
+        self.layout.addWidget(self.pin_input)
+
+        # Login button
+        login_btn = QPushButton("Login")
+        login_btn.clicked.connect(self.login)
+        self.layout.addWidget(login_btn)
+
+        # Theme toggle
+        theme_btn = QPushButton("Toggle Light/Dark Mode")
+        theme_btn.clicked.connect(self.toggle_theme)
+        self.layout.addWidget(theme_btn)
+
+    def login(self):
+        if self.pin_input.text() == self.correct_pin:
+            self.show_dashboard()
+        else:
+            QMessageBox.warning(self, "Error", "Incorrect PIN!")
+
+    # ------------------ DASHBOARD ------------------ #
+    def show_dashboard(self):
+        self.clear_layout()
+
+        # Bank Dashboard Card
+        card = QFrame()
+        card.setFrameShape(QFrame.StyledPanel)
+        card.setStyleSheet("padding: 15px; border-radius: 10px;")
+        card_layout = QVBoxLayout(card)
+
+        # Greeting
+        self.label = QLabel(f"Welcome, Valued Customer!\nBalance: ${self.balance}")
+        self.label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        self.label.setAlignment(Qt.AlignCenter)
+        card_layout.addWidget(self.label)
+
+        # Actions
+        deposit_btn = QPushButton("Deposit $100")
+        deposit_btn.clicked.connect(self.deposit)
+        card_layout.addWidget(deposit_btn)
+
+        withdraw_btn = QPushButton("Withdraw $100")
+        withdraw_btn.clicked.connect(self.withdraw)
+        card_layout.addWidget(withdraw_btn)
+
+        balance_btn = QPushButton("Check Balance")
+        balance_btn.clicked.connect(self.check_balance)
+        card_layout.addWidget(balance_btn)
+
+        logout_btn = QPushButton("Logout")
+        logout_btn.clicked.connect(self.logout)
+        card_layout.addWidget(logout_btn)
+
+        # Add card to main layout
+        self.layout.addWidget(card)
+
+        # Theme toggle
+        theme_btn = QPushButton("Toggle Light/Dark Mode")
+        theme_btn.clicked.connect(self.toggle_theme)
+        self.layout.addWidget(theme_btn)
+
+    # ------------------ BANK FUNCTIONS ------------------ #
+    def deposit(self):
+        self.balance += 100
+        self.label.setText(f"Welcome, Valued Customer!\nBalance: ${self.balance}")
+        QMessageBox.information(self, "Deposit", "Deposited $100 successfully!")
+
+    def withdraw(self):
+        if self.balance >= 100:
+            self.balance -= 100
+            self.label.setText(f"Welcome, Valued Customer!\nBalance: ${self.balance}")
+            QMessageBox.information(self, "Withdraw", "Withdrew $100 successfully!")
+        else:
+            QMessageBox.warning(self, "Error", "Insufficient balance!")
+
+    def check_balance(self):
+        QMessageBox.information(self, "Balance", f"Your balance is: ${self.balance}")
+
+    def logout(self):
+        self.show_login()
+
+    # ------------------ UTILITIES ------------------ #
+    def clear_layout(self):
+        for i in reversed(range(self.layout.count())):
+            widget = self.layout.itemAt(i).widget()
+            if widget:
+                widget.deleteLater()
 
     def toggle_theme(self):
-        self._is_dark = not self._is_dark
-        self.apply_theme(self._is_dark)
+        self.is_dark = not self.is_dark
+        self.apply_theme()
 
-    def apply_theme(self, dark: bool):
-        if dark:
-            palette = QPalette()
-            palette.setColor(QPalette.Window, QColor("#0f1724"))
-            palette.setColor(QPalette.WindowText, Qt.white)
-            palette.setColor(QPalette.Base, QColor("#0b1220"))
-            palette.setColor(QPalette.AlternateBase, QColor("#0f1724"))
-            palette.setColor(QPalette.ToolTipBase, Qt.white)
-            palette.setColor(QPalette.Text, Qt.white)
-            palette.setColor(QPalette.Button, QColor("#111827"))
-            palette.setColor(QPalette.ButtonText, Qt.white)
-            self.setPalette(palette)
-            # small global stylesheet touches
+    def apply_theme(self):
+        if self.is_dark:
             self.setStyleSheet("""
-                QLabel { color: #e6eef3; }
-                QLineEdit { background: #0b1220; color: #e6eef3; }
+                QMainWindow { background-color: #121212; }
+                QLabel { color: #ffffff; }
+                QPushButton {
+                    background-color: #1DB954;
+                    color: white;
+                    font-size: 14px;
+                    border-radius: 6px;
+                    padding: 6px;
+                }
+                QPushButton:hover { background-color: #1ed760; }
+                QLineEdit {
+                    background: #2c2c2c;
+                    color: white;
+                    padding: 5px;
+                    border-radius: 6px;
+                }
             """)
         else:
-            palette = QPalette()
-            palette.setColor(QPalette.Window, QColor("#f3f4f6"))
-            palette.setColor(QPalette.WindowText, Qt.black)
-            palette.setColor(QPalette.Base, QColor("#ffffff"))
-            palette.setColor(QPalette.AlternateBase, QColor("#f3f4f6"))
-            palette.setColor(QPalette.ToolTipBase, Qt.black)
-            palette.setColor(QPalette.Text, Qt.black)
-            palette.setColor(QPalette.Button, QColor("#e6e6e6"))
-            palette.setColor(QPalette.ButtonText, Qt.black)
-            self.setPalette(palette)
             self.setStyleSheet("""
-                QLabel { color: #111827; }
-                QLineEdit { background: #f7f7f7; color: #111827; }
+                QMainWindow { background-color: #f0f2f5; }
+                QLabel { color: #0d1b2a; }
+                QPushButton {
+                    background-color: #003366;
+                    color: white;
+                    font-size: 14px;
+                    border-radius: 6px;
+                    padding: 6px;
+                }
+                QPushButton:hover { background-color: #0055a5; }
+                QLineEdit {
+                    background: white;
+                    color: black;
+                    padding: 5px;
+                    border-radius: 6px;
+                }
             """)
 
-
-def main():
+if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setStyle("Fusion")  # use Fusion for consistent look
-    window = ATMWindow()
+    window = BankingApp()
     window.show()
     sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()
