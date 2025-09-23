@@ -1,42 +1,94 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QFileDialog
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QPushButton, QLabel, QFileDialog, QSlider
+)
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, Qt, QTimer
+from PyQt5.QtGui import QPixmap
 
-class MusicPlayer(QMainWindow):
+class SpotifyClone(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Cool Music Player")
-        self.setGeometry(200, 200, 400, 200)
+        self.setWindowTitle("Spotify Lite 🎵")
+        self.setGeometry(200, 200, 500, 400)
 
         # Player
         self.player = QMediaPlayer()
+        self.player.positionChanged.connect(self.update_position)
+        self.player.durationChanged.connect(self.update_duration)
 
-        # Main widget
+        # Timer for updating slider
+        self.timer = QTimer()
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(self.update_position)
+
+        # Main container
         self.container = QWidget()
         self.layout = QVBoxLayout(self.container)
 
-        # Song label
+        # Album Art
+        self.album_art = QLabel()
+        self.album_art.setPixmap(QPixmap(200, 200))  # placeholder
+        self.album_art.setStyleSheet("background-color: #333; border-radius: 10px;")
+        self.album_art.setFixedSize(200, 200)
+        self.album_art.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.album_art, alignment=Qt.AlignCenter)
+
+        # Song Label
         self.song_label = QLabel("No song loaded")
-        self.song_label.setStyleSheet("font-size:16px; font-weight:bold;")
+        self.song_label.setStyleSheet("font-size:18px; font-weight:bold; color:white;")
+        self.song_label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.song_label)
 
-        # Buttons
-        self.open_btn = QPushButton("🎵 Open Song")
+        # Progress Bar
+        self.progress_slider = QSlider(Qt.Horizontal)
+        self.progress_slider.setStyleSheet("QSlider::groove:horizontal {background: #555;} QSlider::handle:horizontal {background: #1DB954; width: 10px;}")
+        self.progress_slider.sliderReleased.connect(self.set_position)
+        self.layout.addWidget(self.progress_slider)
+
+        # Controls (Play, Pause, Stop)
+        controls_layout = QHBoxLayout()
+        self.open_btn = QPushButton("📂 Open")
         self.open_btn.clicked.connect(self.open_file)
-        self.layout.addWidget(self.open_btn)
+        controls_layout.addWidget(self.open_btn)
 
-        self.play_btn = QPushButton("▶️ Play")
+        self.play_btn = QPushButton("▶️")
         self.play_btn.clicked.connect(self.play_song)
-        self.layout.addWidget(self.play_btn)
+        controls_layout.addWidget(self.play_btn)
 
-        self.pause_btn = QPushButton("⏸️ Pause")
+        self.pause_btn = QPushButton("⏸️")
         self.pause_btn.clicked.connect(self.pause_song)
-        self.layout.addWidget(self.pause_btn)
+        controls_layout.addWidget(self.pause_btn)
 
-        self.stop_btn = QPushButton("⏹️ Stop")
+        self.stop_btn = QPushButton("⏹️")
         self.stop_btn.clicked.connect(self.stop_song)
-        self.layout.addWidget(self.stop_btn)
+        controls_layout.addWidget(self.stop_btn)
+
+        self.layout.addLayout(controls_layout)
+
+        # Volume Slider
+        self.volume_slider = QSlider(Qt.Horizontal)
+        self.volume_slider.setRange(0, 100)
+        self.volume_slider.setValue(50)
+        self.player.setVolume(50)
+        self.volume_slider.valueChanged.connect(self.player.setVolume)
+        self.layout.addWidget(QLabel("Volume", alignment=Qt.AlignCenter))
+        self.layout.addWidget(self.volume_slider)
+
+        # Dark Theme
+        self.setStyleSheet("""
+            QMainWindow { background-color: #121212; }
+            QPushButton {
+                background-color: #1DB954;
+                color: white;
+                font-size: 14px;
+                border-radius: 8px;
+                padding: 6px;
+            }
+            QPushButton:hover { background-color: #1ed760; }
+            QLabel { color: white; }
+        """)
 
         self.setCentralWidget(self.container)
 
@@ -45,19 +97,33 @@ class MusicPlayer(QMainWindow):
         if file_name:
             self.player.setMedia(QMediaContent(QUrl.fromLocalFile(file_name)))
             self.song_label.setText("Playing: " + file_name.split("/")[-1])
+            self.progress_slider.setValue(0)
 
     def play_song(self):
         self.player.play()
+        self.timer.start()
 
     def pause_song(self):
         self.player.pause()
+        self.timer.stop()
 
     def stop_song(self):
         self.player.stop()
+        self.timer.stop()
         self.song_label.setText("No song loaded")
+        self.progress_slider.setValue(0)
+
+    def update_position(self):
+        self.progress_slider.setValue(self.player.position())
+
+    def update_duration(self, duration):
+        self.progress_slider.setRange(0, duration)
+
+    def set_position(self):
+        self.player.setPosition(self.progress_slider.value())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = MusicPlayer()
+    window = SpotifyClone()
     window.show()
     sys.exit(app.exec_())
