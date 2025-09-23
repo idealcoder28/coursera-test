@@ -9,7 +9,7 @@ class BankApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("🏦 Secure Banking System")
-        self.setGeometry(150, 100, 500, 550)
+        self.setGeometry(150, 100, 500, 600)
 
         # User and account details
         self.username = "admin"
@@ -41,18 +41,21 @@ class BankApp(QMainWindow):
         self.clear_layout()
         card = QFrame()
         card.setFrameShape(QFrame.StyledPanel)
-        card.setStyleSheet("padding: 25px; border-radius: 15px;")
+        card.setObjectName("card")
         card_layout = QVBoxLayout(card)
         card_layout.setSpacing(15)
+        card_layout.setContentsMargins(25, 25, 25, 25)
 
-        title = QLabel("Welcome to Secure Bank")
-        title.setStyleSheet("font-size: 24px; font-weight: bold;")
-        title.setAlignment(Qt.AlignCenter)
-        card_layout.addWidget(title)
+        self.title = QLabel("Welcome to Secure Bank")
+        self.title.setAlignment(Qt.AlignCenter)
+        self.title.setWordWrap(True)
+        self.title.setStyleSheet("font-size: 24px; font-weight: bold;")
+        card_layout.addWidget(self.title)
 
-        subtitle = QLabel("Please enter your credentials")
-        subtitle.setAlignment(Qt.AlignCenter)
-        card_layout.addWidget(subtitle)
+        self.subtitle = QLabel("Please enter your credentials")
+        self.subtitle.setAlignment(Qt.AlignCenter)
+        self.subtitle.setWordWrap(True)
+        card_layout.addWidget(self.subtitle)
 
         self.user_input = QLineEdit()
         self.user_input.setPlaceholderText("Username")
@@ -70,10 +73,10 @@ class BankApp(QMainWindow):
         self.login_btn.clicked.connect(self.login)
         card_layout.addWidget(self.login_btn)
 
-        theme_btn = QPushButton("Toggle Light/Dark Mode")
-        theme_btn.setFixedHeight(35)
-        theme_btn.clicked.connect(self.toggle_theme)
-        card_layout.addWidget(theme_btn)
+        self.theme_btn = QPushButton("Toggle Light/Dark Mode")
+        self.theme_btn.setFixedHeight(35)
+        self.theme_btn.clicked.connect(self.toggle_theme)
+        card_layout.addWidget(self.theme_btn)
 
         self.main_layout.addWidget(card)
 
@@ -93,13 +96,15 @@ class BankApp(QMainWindow):
         self.clear_layout()
         card = QFrame()
         card.setFrameShape(QFrame.StyledPanel)
-        card.setStyleSheet("padding: 20px; border-radius: 15px;")
+        card.setObjectName("card")
         card_layout = QVBoxLayout(card)
         card_layout.setSpacing(12)
+        card_layout.setContentsMargins(20, 20, 20, 20)
 
         self.label = QLabel(f"Welcome, {self.username}!\nBalance: ₹{self.balance}")
-        self.label.setStyleSheet("font-size: 20px; font-weight: bold;")
         self.label.setAlignment(Qt.AlignCenter)
+        self.label.setWordWrap(True)
+        self.label.setStyleSheet("font-size: 20px; font-weight: bold;")
         card_layout.addWidget(self.label)
 
         buttons = [
@@ -114,12 +119,14 @@ class BankApp(QMainWindow):
 
         for text, func in buttons:
             btn = QPushButton(text)
-            btn.setFixedHeight(40)
+            btn.setFixedHeight(45)
+            btn.setStyleSheet("font-size: 14px; font-weight: bold;")
             btn.clicked.connect(func)
             card_layout.addWidget(btn)
 
         theme_btn = QPushButton("Toggle Light/Dark Mode")
         theme_btn.setFixedHeight(35)
+        theme_btn.setStyleSheet("font-size: 14px; font-weight: bold;")
         theme_btn.clicked.connect(self.toggle_theme)
         card_layout.addWidget(theme_btn)
 
@@ -192,39 +199,35 @@ class BankApp(QMainWindow):
         if self.is_dark:
             self.setStyleSheet("""
                 QMainWindow { background-color: #121212; }
+                #card { background-color: #1e1e1e; border-radius: 15px; }
                 QLabel { color: #ffffff; }
                 QPushButton {
                     background-color: #1DB954;
                     color: #ffffff;
-                    font-size: 14px;
+                    font-size: 14px; font-weight: bold;
                     border-radius: 6px;
                     padding: 6px;
                 }
                 QPushButton:hover { background-color: #1ed760; }
                 QLineEdit {
-                    background: #2c2c2c;
-                    color: white;
-                    padding: 5px;
-                    border-radius: 6px;
+                    background-color: #2c2c2c; color: white; padding: 5px; border-radius: 6px;
                 }
             """)
         else:
             self.setStyleSheet("""
                 QMainWindow { background-color: #f0f2f5; }
+                #card { background-color: #ffffff; border-radius: 15px; }
                 QLabel { color: #0d1b2a; }
                 QPushButton {
                     background-color: #003366;
                     color: #ffffff;
-                    font-size: 14px;
+                    font-size: 14px; font-weight: bold;
                     border-radius: 6px;
                     padding: 6px;
                 }
                 QPushButton:hover { background-color: #0055a5; }
                 QLineEdit {
-                    background: white;
-                    color: black;
-                    padding: 5px;
-                    border-radius: 6px;
+                    background-color: white; color: black; padding: 5px; border-radius: 6px;
                 }
             """)
 
