@@ -1,69 +1,62 @@
+# app.py
 import sys
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QLabel, QFileDialog, QScrollArea, QFrame
-)
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel
 
-class InstagramClone(QMainWindow):
+class DemoApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Mini Instagram")
-        self.setGeometry(100, 100, 400, 600)
-        self.initUI()
+        self.setWindowTitle("PyQt5 Demo App")
+        self.setGeometry(200, 200, 400, 200)
 
-    def initUI(self):
-        # Main container widget
-        self.container = QWidget()
-        self.layout = QVBoxLayout(self.container)
+        self.layout = QVBoxLayout()
 
-        # Upload button
-        self.upload_btn = QPushButton("Upload Image")
-        self.upload_btn.setFixedHeight(40)
-        self.upload_btn.clicked.connect(self.upload_image)
-        self.layout.addWidget(self.upload_btn)
+        self.label = QLabel("Type something below:", self)
+        self.input = QLineEdit(self)
+        self.button = QPushButton("Submit", self)
 
-        # Scroll Area for feed
-        self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)
-        self.feed_widget = QWidget()
-        self.feed_layout = QVBoxLayout(self.feed_widget)
-        self.feed_layout.setAlignment(Qt.AlignTop)  # Align posts to top
-        self.scroll.setWidget(self.feed_widget)
-        self.layout.addWidget(self.scroll)
+        self.button.clicked.connect(self.show_text)
 
-        self.setCentralWidget(self.container)
+        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.input)
+        self.layout.addWidget(self.button)
 
-    def upload_image(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Images (*.png *.jpg *.jpeg)")
-        if file_name:
-            self.add_post(file_name)
+        self.setLayout(self.layout)
 
-    def add_post(self, image_path):
-        post_frame = QFrame()
-        post_frame.setStyleSheet("QFrame {background-color: #f5f5f5; border-radius: 10px;}")
-        post_layout = QVBoxLayout(post_frame)
-        post_layout.setContentsMargins(10,10,10,10)
-
-        # Image
-        pixmap = QPixmap(image_path).scaled(350, 350, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        image_label = QLabel()
-        image_label.setPixmap(pixmap)
-        image_label.setAlignment(Qt.AlignCenter)
-        post_layout.addWidget(image_label)
-
-        # Like button
-        like_btn = QPushButton("♡ Like")
-        like_btn.setCheckable(True)
-        like_btn.clicked.connect(lambda state, btn=like_btn: btn.setText("♥ Liked" if state else "♡ Like"))
-        post_layout.addWidget(like_btn, alignment=Qt.AlignCenter)
-
-        # Add post to feed
-        self.feed_layout.addWidget(post_frame)
+    def show_text(self):
+        text = self.input.text()
+        self.label.setText(f"You typed: {text}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = InstagramClone()
+    window = DemoApp()
     window.show()
     sys.exit(app.exec_())
+
+
+
+
+
+
+
+# auto.py
+import pyautogui
+import time
+
+pyautogui.FAILSAFE = True
+pyautogui.PAUSE = 0.3
+
+def main():
+    print("Switch to the PyQt5 app window! Starting in 3 seconds...")
+    time.sleep(3)
+
+    # Type into the input field
+    pyautogui.write("Hello PyQt5", interval=0.1)
+
+    # Move focus to button (Tab once)
+    pyautogui.press("tab")
+
+    # Press Enter to click button
+    pyautogui.press("enter")
+
+if __name__ == "__main__":
+    main()
