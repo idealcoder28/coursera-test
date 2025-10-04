@@ -1,1 +1,15 @@
-“Create a clean, modern UPI payments app homepage with a fixed top navbar, a large user profile card at the top (showing avatar, username, UPI ID, balance), quick action icons for send/receive/scan/pay bills/recharge/request money, a highlighted ‘Make a Payment’ card with UPI ID and amount input, a recent transactions section showing payee, amount, and status, and a simple footer with support links. Keep the layout similar to a banking site with sections stacked vertically, but no images — only clean cards, icons, text, and buttons. Use soft background colors, rounded cards, clear spacing, and modern typography. Responsive for mobile and desktop.”
+Hey guys,
+
+Yesterday at DSU, Gowtham and Nikhil walked us through the payments operator code and gave a brief overview of bulk cancellation and bulk routing. They mentioned that they’ll go into more detail on Monday. In the meantime, they asked us to do a few things:
+
+1. Come up with an idea or a small feature that can be added or updated in the payments operator.
+
+
+2. Build a small command in the chatbot that does something, even if it’s minor—for example, triggering a Windows notification.
+
+
+3. Study the code related to value date and SWIFT truncation.
+
+
+
+Not sure if they’ll check this on Monday, but this is what they discussed on Friday.
