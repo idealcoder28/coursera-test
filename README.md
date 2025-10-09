@@ -1,9 +1,24 @@
-This year marked my successful onboarding and integration into the organization. I actively participated in the induction program and various training sessions that deepened my understanding of the banking domain, especially in Finance, Global Payments, and Liquidity.
+As I continue my journey within the organization, my key areas of focus will revolve around enhancing both domain and technical expertise to contribute more effectively to strategic initiatives and team goals.
 
-I completed comprehensive learning modules and hands-on sessions on Generative AI, gaining valuable insights into how AI solutions can be leveraged within banking operations. As part of our team use case, I contributed to exploring GenAI-based solutions for Bulk Cancellation and Bulk Routing, identifying potential efficiency improvements and automation opportunities.
+I plan to build a deeper understanding of core banking concepts, particularly in Finance, Payments (CCIBT), and Liquidity Management, to strengthen my ability to connect technology with business outcomes. Developing a stronger foundation in these areas will help me make more informed contributions to ongoing and future projects.
 
-Additionally, I developed a strong understanding of key components of the Payments Operator system, including SWIFT truncation, value date handling, and high-value transaction processing.
+From a technical perspective, I aim to expand my proficiency in emerging technologies, especially those relevant to our Generative AI initiatives such as LangChain, LangGraph, PyQt5, Python, Grafana, FastAPI, Flask, and Pub/Sub systems. Additionally, I plan to leverage tools like GitHub Copilot more effectively to enhance productivity and code quality.
 
-To strengthen my technical and presentation skills, I also participated in a technology familiarization project, where our team designed and demonstrated a UPI application prototype. This project was presented to leadership and received positive feedback for its innovation and clarity.
+A continued area of focus will be to actively contribute to the GenAI team’s Bulk Cancellation and Bulk Routing use case, supporting the design, implementation, and refinement of solutions that improve operational efficiency and scalability.
 
-Throughout the year, I have demonstrated initiative, collaboration, and a learning-oriented mindset, ensuring consistent progress in both domain and technical areas.
+In alignment with the Company Expectations for 2025, I will strive to:
+
+Embrace candor by engaging in open, transparent communication within the team.
+
+Do what’s right by maintaining integrity and accountability in all tasks.
+
+Be great at execution by focusing on delivering quality outcomes within timelines.
+
+Learn and grow through continuous upskilling and application of new technologies.
+
+Champion an inclusive environment by valuing diverse perspectives and collaboration.
+
+Support high-performing teams by contributing positively to team objectives and shared success.
+
+
+Overall, my goal for the upcoming year is to bridge domain knowledge with technical innovation, ensuring that my contributions drive meaningful impact for both our team and the organization.
