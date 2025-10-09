@@ -1,15 +1,9 @@
-Hey guys,
+This year marked my successful onboarding and integration into the organization. I actively participated in the induction program and various training sessions that deepened my understanding of the banking domain, especially in Finance, Global Payments, and Liquidity.
 
-Yesterday at DSU, Gowtham and Nikhil walked us through the payments operator code and gave a brief overview of bulk cancellation and bulk routing. They mentioned that they’ll go into more detail on Monday. In the meantime, they asked us to do a few things:
+I completed comprehensive learning modules and hands-on sessions on Generative AI, gaining valuable insights into how AI solutions can be leveraged within banking operations. As part of our team use case, I contributed to exploring GenAI-based solutions for Bulk Cancellation and Bulk Routing, identifying potential efficiency improvements and automation opportunities.
 
-1. Come up with an idea or a small feature that can be added or updated in the payments operator.
+Additionally, I developed a strong understanding of key components of the Payments Operator system, including SWIFT truncation, value date handling, and high-value transaction processing.
 
+To strengthen my technical and presentation skills, I also participated in a technology familiarization project, where our team designed and demonstrated a UPI application prototype. This project was presented to leadership and received positive feedback for its innovation and clarity.
 
-2. Build a small command in the chatbot that does something, even if it’s minor—for example, triggering a Windows notification.
-
-
-3. Study the code related to value date and SWIFT truncation.
-
-
-
-Not sure if they’ll check this on Monday, but this is what they discussed on Friday.
+Throughout the year, I have demonstrated initiative, collaboration, and a learning-oriented mindset, ensuring consistent progress in both domain and technical areas.
