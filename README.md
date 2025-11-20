@@ -1,7 +1,37 @@
-This year has been a strong period of learning, growth, and meaningful contribution. I successfully completed my onboarding and actively participated in training programs focused on Finance, Global Payments, Liquidity, and Generative AI, which provided a solid foundation for understanding both the business and technology aspects of our work.
+Topic: Autonomous Repair AI – Review & Feature Discussion
 
-I contributed to the GenAI use case for Bulk Cancellation and Bulk Routing, gaining valuable exposure to automation opportunities and innovation in banking technology. Additionally, I developed a deeper understanding of the Payments Operator system, including key concepts like SWIFT truncation, value date handling, and high-value transaction processing.
+1. A section on assumptions will be added.
 
-Through our UPI application demo presented to leadership, I demonstrated teamwork, initiative, and technical application skills. I consistently met all Risk Overlay expectations, maintaining accuracy, compliance, and adherence to organizational standards.
 
-Looking ahead, I aim to further strengthen my expertise in banking domain knowledge and technology integration, focusing on tools like LangChain, LangGraph, PyQt5, FastAPI, Flask, and Pub/Sub, while aligning with the company’s expectations to learn and grow, execute with excellence, and contribute to a collaborative, high-performing environment.
+2. System will be queue-based, as it gives more flexibility in fixing issues effectively.
+
+
+3. Scope is being reduced – for now, only queue-based use cases will be included.
+
+
+4. Need to understand stacking of error messages:
+
+Can the banner show multiple errors?
+
+Under what conditions does it show multiple errors?
+
+
+
+5. Behavior check:
+
+If a user takes a TRN without selecting anything and clicks Validate, what happens?
+
+
+
+6. History and audit trail section is missing in the current diagram and must be added.
+
+
+7. The final solution will be a monolithic tool consisting of:
+
+Image
+
+Banner Messages
+
+Prompts & POC
+
+Context engineering
